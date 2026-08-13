@@ -21,6 +21,66 @@
         }
       }
     },
+    "/api/ping": {
+      "get": {
+        "summary": "Echo ping with token-bucket rate limiting",
+        "description": "This endpoint is protected by a token-bucket rate limiter. The default quota is 5 requests/sec per client key.",
+        "responses": {
+          "200": {
+            "description": "Successful ping response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "ok" },
+                    "message": { "type": "string", "example": "pong" },
+                    "timestamp": { "type": "string", "format": "date-time" }
+                  },
+                  "required": ["status", "message", "timestamp"]
+                }
+              }
+            },
+            "headers": {
+              "X-RateLimit-Limit": {
+                "schema": { "type": "integer" },
+                "description": "Maximum allowed requests in the current window"
+              },
+              "X-RateLimit-Remaining": {
+                "schema": { "type": "integer" },
+                "description": "Remaining request budget"
+              },
+              "X-RateLimit-Reset": {
+                "schema": { "type": "string", "format": "date-time" },
+                "description": "When the reset window expires"
+              }
+            }
+          },
+          "429": {
+            "description": "Too many requests",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": { "type": "string", "example": "Too many requests" },
+                    "retryAfterMs": { "type": "integer", "example": 1000 },
+                    "resetAt": { "type": "string", "format": "date-time" }
+                  },
+                  "required": ["error", "retryAfterMs", "resetAt"]
+                }
+              }
+            },
+            "headers": {
+              "Retry-After": {
+                "schema": { "type": "integer" },
+                "description": "Seconds until the request is allowed again"
+              }
+            }
+          }
+        }
+      }
+    },
     "/healthz": {
       "get": {
         "summary": "Health check with DB",
