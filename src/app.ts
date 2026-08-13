@@ -2,6 +2,7 @@ import express from 'express';
 import rootRouter from './routes/root';
 import docsRouter from './routes/docs';
 import healthzRouter from './routes/healthz';
+import apiRouter from './routes/api';
 import errorHandler from './middleware/errorHandler';
 import logger from './logger';
 
@@ -14,6 +15,7 @@ app.use((req, _res, next) => {
   next();
 });
 
+app.use('/api', apiRouter);
 app.use('/', rootRouter);
 app.use(docsRouter);
 app.use(healthzRouter);
